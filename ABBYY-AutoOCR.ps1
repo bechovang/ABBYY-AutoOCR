@@ -38,12 +38,12 @@ function Initialize-Folders {
     
     if (-not (Test-Path $InputPath)) {
         New-Item -ItemType Directory -Path $InputPath -Force | Out-Null
-        Write-ColorOutput "✓ Đã tạo thư mục input: $InputPath" "Success"
+        Write-ColorOutput "✓ Da tao thu muc input: $InputPath" "Success"
     }
     
     if (-not (Test-Path $OutputPath)) {
         New-Item -ItemType Directory -Path $OutputPath -Force | Out-Null
-        Write-ColorOutput "✓ Đã tạo thư mục output: $OutputPath" "Success"
+        Write-ColorOutput "✓ Da tao thu muc output: $OutputPath" "Success"
     }
 }
 
@@ -81,18 +81,18 @@ function Start-OCRWithCOM {
         [string]$OutputFolder
     )
     
-    Write-ColorOutput "`n===== BẮT ĐẦU OCR BẰNG COM INTERFACE =====" "Info"
+    Write-ColorOutput "`n===== BAT DAU OCR BANG COM INTERFACE =====" "Info"
     
     try {
         # Khởi tạo ABBYY Engine
-        Write-ColorOutput "Đang khởi tạo ABBYY Engine..." "Info"
+        Write-ColorOutput "Dang khoi tao ABBYY Engine..." "Info"
         $Engine = New-Object -ComObject "FineReader.Engine"
         
         if ($null -eq $Engine) {
-            throw "Không thể khởi tạo ABBYY Engine"
+            throw "Khong the khoi tao ABBYY Engine"
         }
         
-        Write-ColorOutput "✓ ABBYY Engine đã sẵn sàng" "Success"
+        Write-ColorOutput "✓ ABBYY Engine da san sang" "Success"
         
         # Thiết lập tham số xử lý
         $ProcessingParams = $Engine.CreateProcessingParams()
@@ -110,11 +110,11 @@ function Start-OCRWithCOM {
         $pdfFiles = Get-ChildItem -Path $InputFolder -Filter "*.pdf"
         
         if ($pdfFiles.Count -eq 0) {
-            Write-ColorOutput "Không tìm thấy file PDF nào trong thư mục input" "Warning"
+            Write-ColorOutput "Khong tim thay file PDF nao trong thu muc input" "Warning"
             return
         }
         
-        Write-ColorOutput "`nTìm thấy $($pdfFiles.Count) file PDF" "Info"
+        Write-ColorOutput "`nTim thay $($pdfFiles.Count) file PDF" "Info"
         $processedCount = 0
         $errorCount = 0
         
@@ -122,7 +122,7 @@ function Start-OCRWithCOM {
         foreach ($file in $pdfFiles) {
             $outputFile = Join-Path $OutputFolder "$($file.BaseName).txt"
             
-            Write-ColorOutput "`n[$($processedCount + 1)/$($pdfFiles.Count)] Đang xử lý: $($file.Name)" "Info"
+            Write-ColorOutput "`n[$($processedCount + 1)/$($pdfFiles.Count)] Dang xu ly: $($file.Name)" "Info"
             
             try {
                 # Tạo FRDocument
@@ -130,22 +130,22 @@ function Start-OCRWithCOM {
                 $Document.AddImageFile($file.FullName, $null)
                 
                 # Nhận dạng
-                Write-Host "  → Đang nhận dạng văn bản..." -NoNewline
+                Write-Host "  -> Dang nhan dang van ban..." -NoNewline
                 $Document.Process($ProcessingParams)
                 Write-Host " ✓" -ForegroundColor Green
                 
                 # Export
-                Write-Host "  → Đang xuất file TXT..." -NoNewline
+                Write-Host "  -> Dang xuat file TXT..." -NoNewline
                 $Document.Export($outputFile, "TextExport", $null)
                 Write-Host " ✓" -ForegroundColor Green
                 
                 $Document.Close()
                 
-                Write-ColorOutput "  ✓ Hoàn thành: $($file.BaseName).txt" "Success"
+                Write-ColorOutput "  ✓ Hoan thanh: $($file.BaseName).txt" "Success"
                 $processedCount++
             }
             catch {
-                Write-ColorOutput "  ✗ Lỗi: $_" "Error"
+                Write-ColorOutput "  ✗ Loi: $_" "Error"
                 $errorCount++
             }
         }
@@ -155,15 +155,15 @@ function Start-OCRWithCOM {
         [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Engine) | Out-Null
         
         # Tổng kết
-        Write-ColorOutput "`n===== KẾT QUẢ =====" "Info"
-        Write-ColorOutput "Thành công: $processedCount file" "Success"
+        Write-ColorOutput "`n===== KET QUA =====" "Info"
+        Write-ColorOutput "Thanh cong: $processedCount file" "Success"
         if ($errorCount -gt 0) {
-            Write-ColorOutput "Lỗi: $errorCount file" "Error"
+            Write-ColorOutput "Loi: $errorCount file" "Error"
         }
     }
     catch {
-        Write-ColorOutput "Lỗi COM: $_" "Error"
-        Write-ColorOutput "Có thể ABBYY chưa được cài đặt hoặc license không hợp lệ" "Warning"
+        Write-ColorOutput "Loi COM: $_" "Error"
+        Write-ColorOutput "Co the ABBYY chua duoc cai dat hoac license khong hop le" "Warning"
     }
 }
 
@@ -175,12 +175,12 @@ function Start-OCRWithCLI {
         [string]$ABBYYPath
     )
     
-    Write-ColorOutput "`n===== BẮT ĐẦU OCR BẰNG COMMAND LINE =====" "Info"
+    Write-ColorOutput "`n===== BAT DAU OCR BANG COMMAND LINE =====" "Info"
     
     $engineExe = Join-Path $ABBYYPath "FineReaderEngine.exe"
     
     if (-not (Test-Path $engineExe)) {
-        Write-ColorOutput "Không tìm thấy FineReaderEngine.exe tại: $engineExe" "Error"
+        Write-ColorOutput "Khong tim thay FineReaderEngine.exe tai: $engineExe" "Error"
         return
     }
     
@@ -188,17 +188,17 @@ function Start-OCRWithCLI {
     $pdfFiles = Get-ChildItem -Path $InputFolder -Filter "*.pdf"
     
     if ($pdfFiles.Count -eq 0) {
-        Write-ColorOutput "Không tìm thấy file PDF nào trong thư mục input" "Warning"
+        Write-ColorOutput "Khong tim thay file PDF nao trong thu muc input" "Warning"
         return
     }
     
-    Write-ColorOutput "Tìm thấy $($pdfFiles.Count) file PDF`n" "Info"
+    Write-ColorOutput "Tim thay $($pdfFiles.Count) file PDF`n" "Info"
     $processedCount = 0
     
     foreach ($file in $pdfFiles) {
         $outputFile = Join-Path $OutputFolder "$($file.BaseName).txt"
         
-        Write-ColorOutput "[$($processedCount + 1)/$($pdfFiles.Count)] Đang xử lý: $($file.Name)" "Info"
+        Write-ColorOutput "[$($processedCount + 1)/$($pdfFiles.Count)] Dang xu ly: $($file.Name)" "Info"
         
         $arguments = @(
             "/if `"$($file.FullName)`""
@@ -212,18 +212,18 @@ function Start-OCRWithCLI {
             $process = Start-Process -FilePath $engineExe -ArgumentList ($arguments -join " ") -Wait -PassThru -NoNewWindow
             
             if ($process.ExitCode -eq 0) {
-                Write-ColorOutput "  ✓ Hoàn thành: $($file.BaseName).txt" "Success"
+                Write-ColorOutput "  ✓ Hoan thanh: $($file.BaseName).txt" "Success"
                 $processedCount++
             } else {
-                Write-ColorOutput "  ✗ Lỗi với exit code: $($process.ExitCode)" "Error"
+                Write-ColorOutput "  ✗ Loi voi exit code: $($process.ExitCode)" "Error"
             }
         }
         catch {
-            Write-ColorOutput "  ✗ Lỗi: $_" "Error"
+            Write-ColorOutput "  ✗ Loi: $_" "Error"
         }
     }
     
-    Write-ColorOutput "`n===== HOÀN THÀNH: $processedCount/$($pdfFiles.Count) file =====" "Success"
+    Write-ColorOutput "`n===== HOAN THANH: $processedCount/$($pdfFiles.Count) file =====" "Success"
 }
 
 # ===== MAIN SCRIPT =====
@@ -239,28 +239,28 @@ function Main {
     # Kiểm tra và tạo thư mục
     Initialize-Folders -InputPath $Config.InputFolder -OutputPath $Config.OutputFolder
     
-    Write-ColorOutput "`nCấu hình:" "Info"
+    Write-ColorOutput "`nCau hinh:" "Info"
     Write-Host "  Input:  $($Config.InputFolder)"
     Write-Host "  Output: $($Config.OutputFolder)"
-    Write-Host "  Ngôn ngữ: $($Config.Languages -join ', ')"
+    Write-Host "  Ngon ngu: $($Config.Languages -join ', ')"
     
     # Kiểm tra ABBYY
     if (-not (Test-ABBYYInstalled -Path $Config.ABBYYPath)) {
-        Write-ColorOutput "`nKhông tìm thấy ABBYY FineReader 16!" "Error"
-        Write-ColorOutput "Vui lòng cài đặt hoặc kiểm tra đường dẫn" "Warning"
-        Read-Host "`nNhấn Enter để thoát"
+        Write-ColorOutput "`nKhong tim thay ABBYY FineReader 16!" "Error"
+        Write-ColorOutput "Vui long cai dat hoac kiem tra duong dan" "Warning"
+        Read-Host "`nNhan Enter de thoat"
         return
     }
     
-    Write-ColorOutput "`n✓ ABBYY FineReader 16 đã được tìm thấy" "Success"
+    Write-ColorOutput "`n✓ ABBYY FineReader 16 da duoc tim thay" "Success"
     
     # Chọn phương pháp
-    Write-ColorOutput "`nChọn phương pháp OCR:" "Info"
-    Write-Host "  1. COM Interface (Khuyến nghị - Ổn định)"
-    Write-Host "  2. Command Line (Nhanh hơn)"
-    Write-Host "  3. Thoát"
+    Write-ColorOutput "`nChon phuong phap OCR:" "Info"
+    Write-Host "  1. COM Interface (Khuyen nghi - On dinh)"
+    Write-Host "  2. Command Line (Nhanh hon)"
+    Write-Host "  3. Thoat"
     
-    $choice = Read-Host "`nNhập lựa chọn (1-3)"
+    $choice = Read-Host "`nNhap lua chon (1-3)"
     
     switch ($choice) {
         "1" {
@@ -270,16 +270,16 @@ function Main {
             Start-OCRWithCLI -InputFolder $Config.InputFolder -OutputFolder $Config.OutputFolder -ABBYYPath $Config.ABBYYPath
         }
         "3" {
-            Write-ColorOutput "Thoát chương trình" "Info"
+            Write-ColorOutput "Thoat chuong trinh" "Info"
             return
         }
         default {
-            Write-ColorOutput "Lựa chọn không hợp lệ!" "Error"
+            Write-ColorOutput "Lua chon khong hop le!" "Error"
         }
     }
     
-    Write-ColorOutput "`nKết quả đã được lưu tại: $($Config.OutputFolder)" "Success"
-    Read-Host "`nNhấn Enter để thoát"
+    Write-ColorOutput "`nKet qua da duoc luu tai: $($Config.OutputFolder)" "Success"
+    Read-Host "`nNhan Enter de thoat"
 }
 
 # Chạy script
